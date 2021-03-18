@@ -28,30 +28,28 @@ public class CassandraDriverApplication implements CommandLineRunner {
     private OrderRepository orderRepository;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         generateData();
 
         List<Customer> customers = customerRepository.findAll();
         customers.stream()
                 .forEach(customer -> {
-                            List<Order> ordersForCustomer = orderRepository.findByKeyCustomerId(customer.getId());
+                            List<Order> ordersForCustomer = orderRepository.findByCustomerId(customer.getId());
                             System.out.println("Orders by customer id: " + ordersForCustomer + " | " + customer.getId());
 
                             ordersForCustomer.stream()
                                     .forEach(o -> {
-                                        Order order = orderRepository.findByKeyCustomerIdAndKeyOrderId(customer.getId(), o.getOrderId());
+                                        Order order = orderRepository.findByCustomerIdAndOrderId(customer.getId(), o.getOrderId());
                                         System.out.println("Order: " + order);
                                     });
 
                             System.out.println("Deleting orders for customer: " + customer.getId());
-                            orderRepository.deleteAllByKeyCustomerId(customer.getId());
+                            orderRepository.deleteByCustomerId(customer.getId());
 
                             System.out.println("Deleting customer: " + customer.getId());
                             customerRepository.deleteById(customer.getId());
                         }
                 );
-
-        System.exit(0);
     }
 
     private void generateData() {
